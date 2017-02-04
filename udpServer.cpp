@@ -14,8 +14,8 @@ using namespace rapidjson;
 
 class udp_server{
     public:
-        udp_server(boost::asio::io_service& io_service):
-            socket_(io_service,udp::endpoint(udp::v4(),25565)){
+        udp_server():
+            socket_(io_service,udp::endpoint(udp::v4(),25566)){
                 start_recieve();
         }
         int setPressure(double paramPressure){pressure = paramPressure;}
@@ -31,7 +31,7 @@ class udp_server{
         int setHoldsGear(int paramHoldsGear){holdsGear = paramHoldsGear;}
         int setMode(int paramMode){mode = paramMode;}
         int setPowered(int paramPowered){powered = paramPowered;}
-        void Send(){
+        void createJson(){
            StringBuffer message;
            Writer<StringBuffer> writer(message);
            writer.StartObject();
@@ -66,13 +66,16 @@ class udp_server{
            finalString = message.GetString();
            cout<<finalString<<endl;
            }
-        void run(){
-            io_service.run();
+        void serverInit(){
+            thread serverThread(boost::bind(&boost::asio::io_service::run,&io_service));
+            this_thread::sleep_for(chrono::seconds(1000));
         }
-        void end(){
-            io_service.stop();
+        void serverEnd(){
+            serverThread.join();
         }
     private:
+        boost::asio::io_service io_service;
+        thread serverThread;
         double pressure;
         bool highGear;
         bool bottomIntake;
@@ -88,7 +91,6 @@ class udp_server{
         bool powered;
         string finalString;
         rapidjson::Document document;
-        boost::asio::io_service io_service;
         void start_recieve(){
             socket_.async_receive_from(
             boost::asio::buffer(recv_buffer_),remote_endpoint,
@@ -114,8 +116,7 @@ class udp_server{
         array<char,1>recv_buffer_;
 };
 int main(){
-    boost::asio::io_service io_service;
-    udp_server server(io_service);
+    udp_server server;
     server.setPressure(1.2);
     server.setHighGear(false);
     server.setBottomIntake(true);
@@ -129,8 +130,7 @@ int main(){
     server.setHoldsGear(34);
     server.setMode(1);
     server.setPowered(1);
-    server.Send();
-    thread serverThread(boost::bind(&boost::asio::io_service::run,&io_service)); //This creates a thread to run the server in
-    this_thread::sleep_for(chrono::seconds(1));
-    serverThread.join();
+    server.createJson();
+    server.serverInit();
+    server.serverEnd();
 }
