@@ -62,13 +62,10 @@ class udp_server{
            writer.Key("powered");
            writer.Bool(powered);
            writer.EndObject();
-           //cout<<message.GetString()<<endl;
            finalString = message.GetString();
-           cout<<finalString<<endl;
            }
         void serverInit(){
-            thread serverThread(boost::bind(&boost::asio::io_service::run,&io_service));
-            this_thread::sleep_for(chrono::seconds(1000));
+            thread serverThread(&boost::asio::io_service::run,&io_service);
         }
         void serverEnd(){
             serverThread.join();
@@ -94,15 +91,15 @@ class udp_server{
         void start_recieve(){
             socket_.async_receive_from(
             boost::asio::buffer(recv_buffer_),remote_endpoint,
-            boost::bind(&udp_server::handle_recieve,this,
+            bind(&udp_server::handle_recieve,this,
             boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
         }
         void handle_recieve(const boost::system::error_code& error,size_t){
             if(!error || error == boost::asio::error::message_size){
-                boost::shared_ptr<string> message(new string (finalString));
+                shared_ptr<string> message(new string (finalString));
                 socket_.async_send_to(
                 boost::asio::buffer(*message),remote_endpoint,
-                boost::bind(&udp_server::handle_send,this,message,
+                bind(&udp_server::handle_send,this,message,
                 boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
                 start_recieve();
             }
@@ -115,22 +112,4 @@ class udp_server{
         udp::endpoint remote_endpoint;
         array<char,1>recv_buffer_;
 };
-int main(){
-    udp_server server;
-    server.setPressure(1.2);
-    server.setHighGear(false);
-    server.setBottomIntake(true);
-    server.setStream(false);
-    server.setCrosshairOffset(3.4);
-    server.setTurretAngle(5.6);
-    server.setRPM(78);
-    server.setTopIntake(true);
-    server.setLeftRPM(90);
-    server.setRightRPM(12);
-    server.setHoldsGear(34);
-    server.setMode(1);
-    server.setPowered(1);
-    server.createJson();
-    server.serverInit();
-    server.serverEnd();
-}
+

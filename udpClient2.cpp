@@ -14,13 +14,19 @@ using namespace std;
 
 class udp_server{
     public:
-        udp_server(boost::asio::io_service& io_service):
+        udp_server():
             socket_(io_service,udp::endpoint(udp::v4(),25565)){
                 //SetSettings();
                 cout<<"This sucks"<<endl;
                 start_send();
                 cout<<"This sucks"<<endl;
                 start_recieve();
+        }
+        void clientInit(){
+            thread clientThread(boost::bind(&boost::asio::io_service::run,&io_service));
+        }
+        void clientEnd(){
+            clientThread.join();
         }
         std::ofstream ofs;
         std::ifstream ifs;
@@ -146,10 +152,11 @@ class udp_server{
         udp::socket socket_;
         udp::endpoint remote_endpoint;
         array<char,256>recv_buf;
+        thread clientThread;
+        boost::asio::io_service io_service;
 };
 int main(){
-    boost::asio::io_service io_service;
-    udp_server udp_server(io_service);
-    io_service.run();
+    udp_server udp_Server;
+    udp_Server.clientInit();
+    udp_Server.clientEnd();
 }
-
