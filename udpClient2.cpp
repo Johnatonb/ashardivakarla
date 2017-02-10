@@ -1,4 +1,4 @@
-#include <boost/asio.hpp>
+#include <asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <rapidjson/document.h>
@@ -9,24 +9,24 @@
 #include <iostream>
 #include <fstream>
 
-using boost::asio::ip::udp;
+using asio::ip::udp;
 using namespace std;
 
 class udp_server{
     public:
         udp_server():
             socket_(io_service,udp::endpoint(udp::v4(),25565)){
-                //SetSettings();
-                cout<<"This sucks"<<endl;
+                cout<<"Hi"<<endl;
                 start_send();
-                cout<<"This sucks"<<endl;
+                cout<<"Hello"<<endl;
                 start_recieve();
+                cout<<"Welcome"<<endl;
+        }
+        void actualClientInit(){
+            thread clientThread(&udp_server::clientInit,this);
         }
         void clientInit(){
-            thread clientThread(boost::bind(&boost::asio::io_service::run,&io_service));
-        }
-        void clientEnd(){
-            clientThread.join();
+            io_service.run();
         }
         std::ofstream ofs;
         std::ifstream ifs;
@@ -85,18 +85,19 @@ class udp_server{
                 }
             }
         }
-
+        asio::io_service io_service;
     private:
         void start_recieve(){
             socket_.async_receive_from(
-            boost::asio::buffer(recv_buf),remote_endpoint,
+            asio::buffer(recv_buf),remote_endpoint,
             boost::bind(&udp_server::handle_recieve,this,
-            boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
+            asio::placeholders::error,asio::placeholders::bytes_transferred));
             string delimeter = "}";
             string firstString = recv_buf.data();
             finalString = firstString.substr(0,firstString.find(delimeter)+1);
             document.Parse(finalString.c_str());
             if(document.IsObject()){
+                cout<<"Its a json"<<endl;
                 if(document.HasMember("pressure")&&document.HasMember("highGear")&&document.HasMember("bottomIntake")&&
                 document.HasMember("stream")&&document.HasMember("crosshairOffset")&&document.HasMember("turretAngle")&&
                 document.HasMember("RPM")&&document.HasMember("topIntake")&&document.HasMember("leftRPM")&&document.HasMember("rightRPM")&&
@@ -105,6 +106,7 @@ class udp_server{
                         document["stream"].IsBool()&&document["crosshairOffset"].IsDouble()&&document["turretAngle"].IsDouble()&&
                         document["RPM"].IsInt()&&document["topIntake"].IsBool()&&document["leftRPM"].IsInt()&&document["rightRPM"].IsInt()&&
                         document["holdsGear"].IsBool()&&document["mode"].IsInt()&&document["powered"].IsBool()){
+                            cout<<"I can read it"<<endl;
                             pressure=document["pressure"].GetDouble();
                             highGear=document["highGear"].GetBool();
                             bottomIntake=document["bottomIntake"].GetBool();
@@ -127,36 +129,32 @@ class udp_server{
                 }
             }
         }
-        void handle_recieve(const boost::system::error_code& error,size_t){
+        void handle_recieve(const asio::error_code& error,size_t){
             start_recieve();
         }
         void start_send(){
-                boost::asio::io_service io_service;
                 udp::resolver resolver(io_service);
                 udp::resolver::query query("127.0.0.1","25566");
                 udp::endpoint reciever_endpoint = *resolver.resolve(query);
                 udp::socket socket(io_service);
                 socket.open(udp::v4());
                 array<char,1> send_buf = {0};
-                array<char,256> recv_buf;
                 udp::endpoint sender_endpoint;
                 boost::shared_ptr<string> message(new string ("0"));
                 socket_.async_send_to(
-                boost::asio::buffer("0"),reciever_endpoint,
+                asio::buffer("0"),reciever_endpoint,
                 boost::bind(&udp_server::handle_send,this,
-                boost::asio::placeholders::error,boost::asio::placeholders::bytes_transferred));
+                asio::placeholders::error,asio::placeholders::bytes_transferred));
         }
-        void handle_send(const boost::system::error_code& error,size_t){
+        void handle_send(const asio::error_code& error,size_t){
             start_send();
         }
         udp::socket socket_;
         udp::endpoint remote_endpoint;
         array<char,256>recv_buf;
         thread clientThread;
-        boost::asio::io_service io_service;
 };
 int main(){
     udp_server udp_Server;
-    udp_Server.clientInit();
-    udp_Server.clientEnd();
+    udp_Server.actualClientInit();
 }
