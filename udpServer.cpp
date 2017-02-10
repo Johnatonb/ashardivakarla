@@ -66,8 +66,7 @@ class udp_server{
            }
         void serverInit(){
             thread serverThread(boost::bind(&asio::io_service::run,&io_service));
-            cout<<"Close in 100s"<<endl;
-            this_thread::sleep_for(chrono::seconds(1000));
+            while(true){}
         }
         void serverEnd(){
             serverThread.join();
@@ -115,25 +114,3 @@ class udp_server{
         udp::endpoint remote_endpoint;
         array<char,1>recv_buffer_;
 };
-int main(){
-    udp_server udp_server;
-    udp_server.setBottomIntake(true);
-    udp_server.setCrosshairOffset(1.2);
-    udp_server.setHighGear(false);
-    udp_server.setHoldsGear(1);
-    udp_server.setLeftRPM(100);
-    udp_server.setMode(1);
-    udp_server.setPowered(false);
-    udp_server.setPressure(3.4);
-    udp_server.setRightRPM(100);
-    udp_server.setRPM(300);
-    udp_server.setStream(true);
-    udp_server.setTopIntake(false);
-    udp_server.setTurretAngle(5.6);
-    udp_server.createJson();
-    /*double pressure, bool highGear, bool bottomIntake,
-    bool stream, double crosshairOffset, double turretAngle,
-    int RPM, bool topIntake, int leftRPM, int rightRPM, bool holdsGear, int mode, bool powered*/
-    udp_server.serverInit();
-    udp_server.serverEnd();
-}

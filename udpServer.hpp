@@ -4,6 +4,7 @@
 
 class udp_server{
     public:
+        udp_server();
         int setPressure();
         int setHighGear();
         int setBottomIntake();
