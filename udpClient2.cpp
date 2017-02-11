@@ -16,11 +16,8 @@ class udp_server{
     public:
         udp_server(asio::io_service& io_service):
             socket_(io_service,udp::endpoint(udp::v4(),25565)){
-                cout<<"Hi"<<endl;
                 start_send();
-                cout<<"Hello"<<endl;
                 start_recieve();
-                cout<<"Welcome"<<endl;
                 io_service.run();
         }
         void clientInit(){
@@ -161,5 +158,6 @@ int main(){
         udp_server udp_Server(io_service);
         io_service.run();
     });
+    while(true){}
     return 0;
 }

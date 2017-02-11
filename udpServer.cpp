@@ -114,3 +114,25 @@ class udp_server{
         udp::endpoint remote_endpoint;
         array<char,1>recv_buffer_;
 };
+int main(){
+    udp_server udp_server;
+    udp_server.setPressure(1.2);
+    udp_server.setHighGear(true);
+    udp_server.setBottomIntake(false);
+    udp_server.setStream(true);
+    udp_server.setCrosshairOffset(3.4);
+    udp_server.setTurretAngle(5.6);
+    udp_server.setRPM(7);
+    udp_server.setTopIntake(false);
+    udp_server.setLeftRPM(8);
+    udp_server.setRightRPM(9);
+    udp_server.setHoldsGear(true);
+    udp_server.setMode(10);
+    udp_server.setPowered(11);
+    udp_server.createJson();
+    udp_server.serverInit();
+    udp_server.serverEnd();
+    /*double pressure, bool highGear, bool bottomIntake,
+    bool stream, double crosshairOffset, double turretAngle,
+    int RPM, bool topIntake, int leftRPM, int rightRPM, bool holdsGear, int mode, bool powered*/
+}
