@@ -131,6 +131,7 @@ int main(){
     udp_server.setPowered(11);
     udp_server.createJson();
     udp_server.serverInit();
+    while(true){}
     udp_server.serverEnd();
     /*double pressure, bool highGear, bool bottomIntake,
     bool stream, double crosshairOffset, double turretAngle,

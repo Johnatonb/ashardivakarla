@@ -18,7 +18,6 @@ class udp_server{
             socket_(io_service,udp::endpoint(udp::v4(),25565)){
                 start_send();
                 start_recieve();
-                io_service.run();
         }
         void clientInit(){
             thread clientThread(boost::bind(&asio::io_service::run,&io_service));
