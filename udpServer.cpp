@@ -131,6 +131,20 @@ int main(){
     udp_server.setPowered(11);
     udp_server.createJson();
     udp_server.serverInit();
+    udp_server.setPressure(1.2);
+    udp_server.setHighGear(true);
+    udp_server.setBottomIntake(false);
+    udp_server.setStream(true);
+    udp_server.setCrosshairOffset(3.4);
+    udp_server.setTurretAngle(666);
+    udp_server.setRPM(7);
+    udp_server.setTopIntake(false);
+    udp_server.setLeftRPM(8);
+    udp_server.setRightRPM(9);
+    udp_server.setHoldsGear(true);
+    udp_server.setMode(10);
+    udp_server.setPowered(11);
+    udp_server.createJson();
     while(true){}
     udp_server.serverEnd();
     /*double pressure, bool highGear, bool bottomIntake,
